@@ -8,6 +8,7 @@ import datetime
 import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
+import wandb
 
 DEBUG = 10
 INFO = 20
@@ -182,7 +183,10 @@ def make_output_format(format, ev_dir, log_suffix=''):
     elif format == 'csv':
         return CSVOutputFormat(osp.join(ev_dir, 'progress%s.csv' % log_suffix))
     elif format == 'tensorboard':
-        return TensorBoardOutputFormat(osp.join(ev_dir, 'tb%s' % log_suffix))
+        if wandb.run is None:
+            return TensorBoardOutputFormat(osp.join(ev_dir, 'tb%s' % log_suffix))
+        else:
+            return TensorBoardOutputFormat(wandb.run.dir)
     else:
         raise ValueError('Unknown format specified: %s' % (format,))
 
